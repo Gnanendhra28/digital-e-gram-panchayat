@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital E Gram Panchayat - Manage Services</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js)"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="/public/logo.png" alt="Unified Mentor Logo" class="logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="admin-dashboard.html">Dashboard</a></li>
+                    <li id="nav-auth-links">
+                        <li><a href="#" id="logout-link">Logout</a></li>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Manage Gram Panchayat Services</h2>
+
+        <button class="btn" id="show-add-service-form">Add New Service</button>
+
+        <div id="add-service-section" style="display: none; margin-top: 20px; padding: 20px; border: 1px solid #ddd; background: #fff;">
+            <h3>Add/Edit Service</h3>
+            <form id="serviceForm">
+                <input type="hidden" id="serviceId" value="">
+                <div class="form-group">
+                    <label for="serviceName">Service Name:</label>
+                    <input type="text" id="serviceName" required>
+                </div>
+                <div class="form-group">
+                    <label for="serviceDescription">Description:</label>
+                    <textarea id="serviceDescription" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="serviceFees">Fees (Optional):</label>
+                    <input type="number" id="serviceFees" step="0.01">
+                </div>
+                <button type="submit" class="btn" id="save-service-btn">Save Service</button>
+                <button type="button" class="btn btn-secondary" id="cancel-service-edit">Cancel</button>
+            </form>
+        </div>
+
+        <h3 style="margin-top: 30px;">Existing Services</h3>
+        <div id="existing-services-list" class="service-management-grid">
+            <p>Loading services...</p>
+            </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Digital E Gram Panchayat. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const addServiceSection = document.getElementById('add-service-section');
+            const showAddServiceFormBtn = document.getElementById('show-add-service-form');
+            const cancelServiceEditBtn = document.getElementById('cancel-service-edit');
+            const serviceForm = document.getElementById('serviceForm');
+            const serviceIdInput = document.getElementById('serviceId');
+            const serviceNameInput = document.getElementById('serviceName');
+            const serviceDescriptionInput = document.getElementById('serviceDescription');
+            const serviceFeesInput = document.getElementById('serviceFees');
+            const existingServicesList = document.getElementById('existing-services-list');
+            const saveServiceBtn = document.getElementById('save-service-btn');
+
+            let currentUserId = null;
+
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (user) {
+                    currentUserId = user.uid;
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (!userDoc.exists || userDoc.data().role !== 'admin') {
+                        alert('Access Denied. Only administrators can manage services.');
+                        window.location.href = 'admin-dashboard.html'; // Redirect if not admin
+                        return;
+                    }
+                    // Update navigation for authenticated admin
+                    document.getElementById('nav-auth-links').innerHTML = `
+                        <li><a href="#" id="logout-link">Logout</a></li>
+                    `;
+                    document.getElementById('logout-link').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        logoutUser();
+                    });
+                    loadServices(); // Load services once admin is confirmed
+                } else {
+                    alert('You must be logged in as an administrator to manage services.');
+                    window.location.href = 'login.html';
+                }
+            });
+
+            async function loadServices() {
+                existingServicesList.innerHTML = '<p>Loading services...</p>';
+                const services = await getServices(); // From script.js
+                existingServicesList.innerHTML = ''; // Clear loading message
+
+                if (services.length > 0) {
+                    services.forEach(service => {
+                        const serviceItem = document.createElement('div');
+                        serviceItem.className = 'service-management-item';
+                        serviceItem.innerHTML = `
+                            <h4>${service.name}</h4>
+                            <p>${service.description}</p>
+                            <p>Fees: ₹${service.fees || 'N/A'}</p>
+                            <button class="btn btn-secondary edit-service" data-id="${service.id}">Edit</button>
+                            <button class="btn btn-danger delete-service" data-id="${service.id}">Delete</button>
+                        `;
+                        existingServicesList.appendChild(serviceItem);
+                    });
+
+                    document.querySelectorAll('.edit-service').forEach(button => {
+                        button.addEventListener('click', (e) => editService(e.target.dataset.id));
+                    });
+                    document.querySelectorAll('.delete-service').forEach(button => {
+                        button.addEventListener('click', (e) => deleteServiceConfirm(e.target.dataset.id));
+                    });
+                } else {
+                    existingServicesList.innerHTML = '<p>No services defined yet.</p>';
+                }
+            }
+
+            showAddServiceFormBtn.addEventListener('click', () => {
+                addServiceSection.style.display = 'block';
+                serviceIdInput.value = ''; // Clear for new service
+                serviceForm.reset();
+                saveServiceBtn.textContent = 'Save Service';
+            });
+
+            cancelServiceEditBtn.addEventListener('click', () => {
+                addServiceSection.style.display = 'none';
+                serviceForm.reset();
+            });
+
+            serviceForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const serviceId = serviceIdInput.value;
+                const serviceData = {
+                    name: serviceNameInput.value,
+                    description: serviceDescriptionInput.value,
+                    fees: parseFloat(serviceFeesInput.value) || 0,
+                    createdBy: currentUserId, // Track who created/updated
+                };
+
+                if (serviceId) {
+                    await updateService(serviceId, serviceData); // From script.js
+                } else {
+                    await createService(serviceData); // From script.js
+                }
+                addServiceSection.style.display = 'none';
+                loadServices(); // Reload list
+            });
+
+            async function editService(id) {
+                const serviceDoc = await db.collection('services').doc(id).get();
+                if (serviceDoc.exists) {
+                    const service = serviceDoc.data();
+                    serviceIdInput.value = id;
+                    serviceNameInput.value = service.name;
+                    serviceDescriptionInput.value = service.description;
+                    serviceFeesInput.value = service.fees || '';
+                    addServiceSection.style.display = 'block';
+                    saveServiceBtn.textContent = 'Update Service';
+                } else {
+                    alert('Service not found.');
+                }
+            }
+
+            async function deleteServiceConfirm(id) {
+                if (confirm('Are you sure you want to delete this service?')) {
+                    await deleteService(id); // From script.js
+                    loadServices(); // Reload list
+                }
+            }
+        });
+    </script>
+</body>
+</html>

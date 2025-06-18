@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital E Gram Panchayat - Register</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js)"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="/public/logo.png" alt="Unified Mentor Logo" class="logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="register.html" class="current">Register</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container form-page">
+        <h2>Create Your Account</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="mobile">Mobile Number:</label>
+                <input type="text" id="mobile" name="mobile" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn">Register</button>
+            <p>Already have an account? <a href="login.html">Login here</a></p>
+        </form>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Digital E Gram Panchayat. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = registerForm.email.value;
+                    const password = registerForm.password.value;
+                    const name = registerForm.name.value;
+                    const mobile = registerForm.mobile.value;
+
+                    // Call the registerUser function from script.js
+                    const user = await registerUser(email, password, { name, mobile, role: 'user' });
+                    if (user) {
+                        window.location.href = 'my-applications.html'; // Redirect to user dashboard after successful registration
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

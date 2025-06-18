@@ -1,0 +1,87 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital E Gram Panchayat - About Us</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Firebase SDKs -->
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js)"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="/public/logo.png" alt="Unified Mentor Logo" class="logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="about.html" class="current">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li id="nav-auth-links">
+                        <!-- Dynamic links for Login/Register or Dashboard/Logout -->
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container content-section">
+        <h2>About Digital E Gram Panchayat</h2>
+        <p>Welcome to the Digital E Gram Panchayat initiative, a step forward in bringing transparency, efficiency, and accessibility to rural governance. Our mission is to empower citizens by providing a seamless online platform for accessing essential gram panchayat services.</p>
+
+        <h3>Our Vision</h3>
+        <p>To create a digitally empowered village community where every citizen can effortlessly interact with the gram panchayat for services, information, and grievances. We envision a future where technology bridges the gap between governance and citizens, fostering inclusive growth and development.</p>
+
+        <h3>What We Offer</h3>
+        <ul>
+            <li><strong>Online Application Submission:</strong> Apply for various certificates, permits, and schemes from the comfort of your home.</li>
+            <li><strong>Real-time Application Tracking:</strong> Stay updated on the status of your applications without multiple visits to the gram panchayat office.</li>
+            <li><strong>Information Hub:</strong> Access comprehensive details about government services, welfare schemes, and village-specific announcements.</li>
+            <li><strong>Streamlined Administration:</strong> Enable gram panchayat staff and officers to manage applications, create services, and update statuses efficiently.</li>
+            <li><strong>Enhanced Transparency:</strong> Promote accountability and reduce manual errors through a digitized system.</li>
+        </ul>
+
+        <h3>Our Commitment</h3>
+        <p>We are committed to providing a secure, user-friendly, and reliable platform. We continuously strive to incorporate feedback from citizens and officials to improve our services and ensure the system remains relevant and beneficial to the community.</p>
+
+        <p>The "Digital E Gram Panchayat" project is developed using modern web technologies including HTML, CSS, JavaScript, and Firebase, ensuring a robust and scalable solution for rural service delivery.</p>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Digital E Gram Panchayat. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Dynamic navigation update logic (copied for consistency across pages)
+        firebase.auth().onAuthStateChanged((user) => {
+            const navAuthLinks = document.getElementById('nav-auth-links');
+            if (user) {
+                // User is signed in
+                navAuthLinks.innerHTML = `
+                    <li><a href="${user.email.includes('admin') || user.email.includes('officer') ? 'admin-dashboard.html' : 'my-applications.html'}">Dashboard</a></li>
+                    <li><a href="#" id="logout-link">Logout</a></li>
+                `;
+                document.getElementById('logout-link').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    logoutUser();
+                });
+            } else {
+                // No user is signed in
+                navAuthLinks.innerHTML = `
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="register.html">Register</a></li>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

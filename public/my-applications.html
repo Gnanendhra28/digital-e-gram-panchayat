@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital E Gram Panchayat - My Applications</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js)"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="/public/logo.png" alt="Unified Mentor Logo" class="logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li id="nav-auth-links">
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>My Submitted Applications</h2>
+        <div id="applications-list">
+            <p>Please log in to view your applications.</p>
+            </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Digital E Gram Panchayat. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const applicationsListDiv = document.getElementById('applications-list');
+
+            firebase.auth().onAuthStateChanged(async (user) => {
+                const navAuthLinks = document.getElementById('nav-auth-links');
+                if (user) {
+                    navAuthLinks.innerHTML = `
+                        <li><a href="${user.email.includes('admin') ? 'admin-dashboard.html' : 'my-applications.html'}" class="current">Dashboard</a></li>
+                        <li><a href="#" id="logout-link">Logout</a></li>
+                    `;
+                    document.getElementById('logout-link').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        logoutUser();
+                    });
+
+                    // User is signed in, fetch their applications
+                    applicationsListDiv.innerHTML = '<p>Loading your applications...</p>';
+                    const applications = await getUserApplications(user.uid); // Assumes getUserApplications from script.js
+                    const services = await getServices(); // To get service names
+
+                    if (applications.length > 0) {
+                        applicationsListDiv.innerHTML = ''; // Clear loading message
+                        applications.forEach(app => {
+                            const serviceName = services.find(s => s.id === app.serviceId)?.name || 'Unknown Service';
+                            const applicationCard = document.createElement('div');
+                            applicationCard.className = 'application-card';
+                            applicationCard.innerHTML = `
+                                <h3>Application for: ${serviceName}</h3>
+                                <p><strong>Status:</strong> <span class="status-${app.status.toLowerCase().replace(/\s+/g, '-')}">${app.status}</span></p>
+                                <p><strong>Submitted On:</strong> ${app.createdAt ? new Date(app.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+                                ${app.remarks ? `<p><strong>Remarks:</strong> ${app.remarks}</p>` : ''}
+                                `;
+                            applicationsListDiv.appendChild(applicationCard);
+                        });
+                    } else {
+                        applicationsListDiv.innerHTML = '<p>You have not submitted any applications yet.</p>';
+                    }
+
+                } else {
+                    // No user is signed in
+                    navAuthLinks.innerHTML = `
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                    `;
+                    applicationsListDiv.innerHTML = '<p>Please log in to view your applications.</p>';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

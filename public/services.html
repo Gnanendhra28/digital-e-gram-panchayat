@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital E Gram Panchayat - Services</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js)"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="/public/logo.png" alt="Unified Mentor Logo" class="logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html" class="current">Services</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li id="nav-auth-links">
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Available Gram Panchayat Services</h2>
+        <div id="services-list" class="service-grid">
+            <p>Loading services...</p>
+            </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Digital E Gram Panchayat. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const servicesListDiv = document.getElementById('services-list');
+            const services = await getServices(); // Assumes getServices from script.js
+
+            if (services.length > 0) {
+                servicesListDiv.innerHTML = ''; // Clear "Loading services..."
+                services.forEach(service => {
+                    const serviceCard = document.createElement('div');
+                    serviceCard.className = 'service-card';
+                    serviceCard.innerHTML = `
+                        <h3>${service.name}</h3>
+                        <p>${service.description}</p>
+                        <p><strong>Fees:</strong> ₹${service.fees || 'N/A'}</p>
+                        <a href="apply-service.html?serviceId=${service.id}" class="btn">Apply Now</a>
+                    `;
+                    servicesListDiv.appendChild(serviceCard);
+                });
+            } else {
+                servicesListDiv.innerHTML = '<p>No services available at the moment. Please check back later.</p>';
+            }
+
+            // Update navigation based on auth state (copied from index.html for consistency)
+            firebase.auth().onAuthStateChanged((user) => {
+                const navAuthLinks = document.getElementById('nav-auth-links');
+                if (user) {
+                    navAuthLinks.innerHTML = `
+                        <li><a href="${user.email.includes('admin') ? 'admin-dashboard.html' : 'my-applications.html'}">Dashboard</a></li>
+                        <li><a href="#" id="logout-link">Logout</a></li>
+                    `;
+                    document.getElementById('logout-link').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        logoutUser();
+                    });
+                } else {
+                    navAuthLinks.innerHTML = `
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                    `;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

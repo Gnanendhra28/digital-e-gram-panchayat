@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital E Gram Panchayat - Home</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js)"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="/public/logo.png" alt="Unified Mentor Logo" class="logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li id="nav-auth-links">
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container hero">
+        <h1>Welcome to Digital E Gram Panchayat</h1>
+        <p>Your one-stop solution for village services. Apply for services, track your applications, and access government information easily online.</p>
+        <div class="hero-buttons">
+            <a href="services.html" class="btn">Explore Services</a>
+            <a href="register.html" class="btn btn-secondary">Get Started</a>
+        </div>
+
+        <section class="features">
+            <h2>Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h3>Online Application</h3>
+                    <p>Submit applications for various gram panchayat services from the comfort of your home.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Application Tracking</h3>
+                    <p>Easily track the real-time status of your submitted applications.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Government Information</h3>
+                    <p>Access information about government schemes and services.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Secure & Transparent</h3>
+                    <p>A secure and transparent platform for all your village service needs.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Digital E Gram Panchayat. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Example of dynamically updating navigation based on auth state
+        firebase.auth().onAuthStateChanged((user) => {
+            const navAuthLinks = document.getElementById('nav-auth-links');
+            if (user) {
+                // User is signed in
+                navAuthLinks.innerHTML = `
+                    <li><a href="${user.email.includes('admin') ? 'admin-dashboard.html' : 'my-applications.html'}">Dashboard</a></li>
+                    <li><a href="#" id="logout-link">Logout</a></li>
+                `;
+                document.getElementById('logout-link').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    logoutUser();
+                });
+            } else {
+                // No user is signed in
+                navAuthLinks.innerHTML = `
+                    <li><a href="login.html">Login</a></li>
+                    <li><a href="register.html">Register</a></li>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital E Gram Panchayat - Manage Applications</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js)"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="/public/logo.png" alt="Unified Mentor Logo" class="logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="admin-dashboard.html">Dashboard</a></li>
+                    <li id="nav-auth-links">
+                        <li><a href="#" id="logout-link">Logout</a></li>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Manage Citizen Applications</h2>
+
+        <div id="applications-filter" style="margin-bottom: 20px;">
+            <label for="statusFilter">Filter by Status:</label>
+            <select id="statusFilter">
+                <option value="All">All</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+
+        <div id="all-applications-list">
+            <p>Loading applications...</p>
+            </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Digital E Gram Panchayat. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const allApplicationsListDiv = document.getElementById('all-applications-list');
+            const statusFilter = document.getElementById('statusFilter');
+
+            let currentUserRole = null;
+            let currentUserId = null;
+
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (user) {
+                    currentUserId = user.uid;
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (!userDoc.exists || (userDoc.data().role !== 'admin' && userDoc.data().role !== 'officer' && userDoc.data().role !== 'staff')) {
+                        alert('Access Denied. You are not authorized to view this page.');
+                        window.location.href = 'index.html'; // Redirect unauthorized users
+                        return;
+                    }
+                    currentUserRole = userDoc.data().role;
+
+                    // Update navigation for authenticated staff/officer/admin
+                    document.getElementById('nav-auth-links').innerHTML = `
+                        <li><a href="#" id="logout-link">Logout</a></li>
+                    `;
+                    document.getElementById('logout-link').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        logoutUser();
+                    });
+                    loadApplications(); // Load applications once authorized
+                } else {
+                    alert('You must be logged in to manage applications.');
+                    window.location.href = 'login.html';
+                }
+            });
+
+            statusFilter.addEventListener('change', loadApplications);
+
+            async function loadApplications() {
+                allApplicationsListDiv.innerHTML = '<p>Loading applications...</p>';
+                const selectedStatus = statusFilter.value;
+
+                let query = db.collection('applications').orderBy('createdAt', 'desc');
+
+                if (selectedStatus !== 'All') {
+                    query = query.where('status', '==', selectedStatus);
+                }
+
+                try {
+                    const snapshot = await query.get();
+                    const applications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                    // Fetch associated service and user data for display
+                    const servicePromises = applications.map(app => db.collection('services').doc(app.serviceId).get());
+                    const userPromises = applications.map(app => db.collection('users').doc(app.userId).get());
+
+                    const [serviceDocs, userDocs] = await Promise.all([
+                        Promise.all(servicePromises),
+                        Promise.all(userPromises)
+                    ]);
+
+                    const servicesMap = new Map(serviceDocs.map(doc => [doc.id, doc.data()]));
+                    const usersMap = new Map(userDocs.map(doc => [doc.id, doc.data()]));
+
+                    allApplicationsListDiv.innerHTML = ''; // Clear loading message
+
+                    if (applications.length > 0) {
+                        applications.forEach(app => {
+                            const service = servicesMap.get(app.serviceId) || { name: 'Unknown Service' };
+                            const user = usersMap.get(app.userId) || { name: 'Unknown User', email: 'N/A' };
+
+                            const applicationCard = document.createElement('div');
+                            applicationCard.className = 'application-card';
+                            applicationCard.innerHTML = `
+                                <h3>Service: ${service.name}</h3>
+                                <p><strong>Applicant:</strong> ${user.name} (${user.email})</p>
+                                <p><strong>Submitted On:</strong> ${app.createdAt ? new Date(app.createdAt.toDate()).toLocaleDateString() : 'N/A'}</p>
+                                <p><strong>Current Status:</strong> <span class="status-${app.status.toLowerCase().replace(/\s+/g, '-')}">${app.status}</span></p>
+                                <p><strong>Aadhaar:</strong> ${app.aadhaarNumber || 'N/A'}</p>
+                                <p><strong>Address:</strong> ${app.address || 'N/A'}</p>
+                                ${app.remarks ? `<p><strong>Remarks:</strong> ${app.remarks}</p>` : ''}
+                                <div class="status-update-section">
+                                    <label for="status-${app.id}">Update Status:</label>
+                                    <select id="status-${app.id}" data-app-id="${app.id}">
+                                        <option value="Pending" ${app.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                        <option value="In Progress" ${app.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                        <option value="Approved" ${app.status === 'Approved' ? 'selected' : ''}>Approved</option>
+                                        <option value="Rejected" ${app.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                                    </select>
+                                    <input type="text" id="remarks-${app.id}" placeholder="Remarks (optional)" value="${app.remarks || ''}">
+                                    <button class="btn btn-small update-status-btn" data-app-id="${app.id}">Update</button>
+                                </div>
+                            `;
+                            allApplicationsListDiv.appendChild(applicationCard);
+                        });
+
+                        document.querySelectorAll('.update-status-btn').forEach(button => {
+                            button.addEventListener('click', async (e) => {
+                                const appId = e.target.dataset.appId;
+                                const newStatus = document.getElementById(`status-${appId}`).value;
+                                const remarks = document.getElementById(`remarks-${appId}`).value;
+                                await updateApplicationStatus(appId, newStatus, remarks); // From script.js
+                                loadApplications(); // Reload list after update
+                            });
+                        });
+
+                    } else {
+                        allApplicationsListDiv.innerHTML = '<p>No applications found matching the filter.</p>';
+                    }
+                } catch (error) {
+                    console.error("Error loading applications:", error);
+                    allApplicationsListDiv.innerHTML = '<p>Error loading applications. Please try again.</p>';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

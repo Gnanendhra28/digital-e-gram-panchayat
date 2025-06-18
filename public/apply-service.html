@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital E Gram Panchayat - Apply for Service</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js)"></script>
+    <script src="[https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js)"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="/public/logo.png" alt="Unified Mentor Logo" class="logo">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html" class="current">Services</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li id="nav-auth-links">
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container form-page">
+        <h2 id="service-title">Apply for Service</h2>
+        <p id="service-description"></p>
+
+        <form id="applyServiceForm">
+            <p>Loading service details and form...</p>
+            <button type="submit" class="btn" id="submit-application-btn" style="display: none;">Submit Application</button>
+        </form>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Digital E Gram Panchayat. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const serviceId = urlParams.get('serviceId');
+            const serviceTitle = document.getElementById('service-title');
+            const serviceDescription = document.getElementById('service-description');
+            const applyServiceForm = document.getElementById('applyServiceForm');
+            const submitButton = document.getElementById('submit-application-btn');
+
+            let currentService = null;
+
+            if (!serviceId) {
+                serviceTitle.textContent = "Error: Service Not Found";
+                serviceDescription.textContent = "Please go back to the services page and select a service.";
+                applyServiceForm.innerHTML = '';
+                return;
+            }
+
+            // Fetch service details
+            try {
+                const serviceDoc = await db.collection('services').doc(serviceId).get();
+                if (serviceDoc.exists) {
+                    currentService = { id: serviceDoc.id, ...serviceDoc.data() };
+                    serviceTitle.textContent = `Apply for: ${currentService.name}`;
+                    serviceDescription.textContent = currentService.description;
+                    submitButton.style.display = 'block';
+
+                    // Dynamically generate form fields based on service (simplified example)
+                    // In a real app, 'requiredDocuments' or a custom schema would define fields
+                    applyServiceForm.innerHTML = `
+                        <div class="form-group">
+                            <label for="applicantName">Your Full Name:</label>
+                            <input type="text" id="applicantName" name="applicantName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="aadhaarNumber">Aadhaar Number:</label>
+                            <input type="text" id="aadhaarNumber" name="aadhaarNumber" required pattern="[0-9]{12}" title="Please enter a 12-digit Aadhaar number">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address:</label>
+                            <textarea id="address" name="address" rows="3" required></textarea>
+                        </div>
+                        `;
+                    applyServiceForm.appendChild(submitButton); // Re-append button after clearing innerHTML
+
+                } else {
+                    serviceTitle.textContent = "Error: Service Not Found";
+                    serviceDescription.textContent = "The requested service does not exist.";
+                    applyServiceForm.innerHTML = '';
+                    return;
+                }
+            } catch (error) {
+                console.error("Error fetching service details:", error);
+                serviceTitle.textContent = "Error loading service.";
+                serviceDescription.textContent = "Could not load service details. Please try again later.";
+                applyServiceForm.innerHTML = '';
+                return;
+            }
+
+            applyServiceForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    alert('You must be logged in to apply for a service.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const applicationData = {
+                    applicantName: document.getElementById('applicantName').value,
+                    aadhaarNumber: document.getElementById('aadhaarNumber').value,
+                    address: document.getElementById('address').value,
+                    // Add other dynamically collected data
+                };
+
+                await applyForService(user.uid, serviceId, applicationData); // Assumes applyForService from script.js
+            });
+
+            // Update navigation based on auth state (copied for consistency)
+            firebase.auth().onAuthStateChanged((user) => {
+                const navAuthLinks = document.getElementById('nav-auth-links');
+                if (user) {
+                    navAuthLinks.innerHTML = `
+                        <li><a href="${user.email.includes('admin') ? 'admin-dashboard.html' : 'my-applications.html'}">Dashboard</a></li>
+                        <li><a href="#" id="logout-link">Logout</a></li>
+                    `;
+                    document.getElementById('logout-link').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        logoutUser();
+                    });
+                } else {
+                    navAuthLinks.innerHTML = `
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                    `;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
