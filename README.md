@@ -1,4 +1,4 @@
-# Digital E Gram Panchayat
+<img width="1021" alt="Screenshot 2025-06-18 at 11 03 18 PM" src="https://github.com/user-attachments/assets/49d80e87-42ae-41e7-8966-63c71a19958c" /># Digital E Gram Panchayat
 
 This project aims to improve the delivery of citizen services in villages by computerizing applications for gram panchayat services. It provides a web application for citizens to apply for various services online and track their progress, while administrative staff manage approvals and scheme creation.
 
@@ -30,6 +30,7 @@ digital-e-gram-panchayat/
 │   └── logo.png                // Project logo and other images
 ├── .gitignore                  // Files/folders to ignore in Git
 └── LICENSE                     // (Optional) Project license
+
 
 ## Problem Statement
 
