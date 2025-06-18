@@ -1,4 +1,3 @@
-<img width="1021" alt="Screenshot 2025-06-18 at 11 03 18 PM" src="https://github.com/user-attachments/assets/49d80e87-42ae-41e7-8966-63c71a19958c" /># Digital E Gram Panchayat
 
 This project aims to improve the delivery of citizen services in villages by computerizing applications for gram panchayat services. It provides a web application for citizens to apply for various services online and track their progress, while administrative staff manage approvals and scheme creation.
 
@@ -7,30 +6,8 @@ This project aims to improve the delivery of citizen services in villages by com
 * [cite_start]**Project Title**: Digital E Gram Panchayat 
 * [cite_start]**Technologies**: HTML, CSS, JS, and Firebase 
 * [cite_start]**Domain**: Industry 
-* [cite_start]**Project Difficulties level**: Hard 
 
-digital-e-gram-panchayat/
-├── README.md                    // Project overview, setup, usage
-├── index.html                  // Main landing page
-├── login.html                  // Login page
-├── register.html               // Registration page
-├── services.html               // Page to display available services (user/staff)
-├── apply-service.html          // Form for service application (user)
-├── my-applications.html        // Page to view user's application status (user)
-├── admin-dashboard.html        // Admin/Officer dashboard
-├── manage-services.html        // Admin/Officer: Create/Update/Delete services
-├── manage-applications.html    // Admin/Officer/Staff: View/Update application status
-├── css/
-│   └── style.css               // Main stylesheet
-├── js/
-│   ├── script.js               // Main JavaScript file (Firebase interactions, module logic)
-│   ├── auth.js                 // (Optional) Separate file for authentication logic
-│   └── services.js             // (Optional) Separate file for service-related logic
-├── images/
-│   └── logo.png                // Project logo and other images
-├── .gitignore                  // Files/folders to ignore in Git
-└── LICENSE                     // (Optional) Project license
-
+<img width="1021" alt="Screenshot 2025-06-18 at 11 03 18 PM" src="https://github.com/user-attachments/assets/49d80e87-42ae-41e7-8966-63c71a19958c" /># Digital E Gram Panchayat
 
 ## Problem Statement
 
