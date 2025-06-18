@@ -10,26 +10,26 @@ This project aims to improve the delivery of citizen services in villages by com
 * [cite_start]**Project Difficulties level**: Hard 
 
 digital-e-gram-panchayat/
-├── README.md                 // Project overview, setup, usage 
-├── index.html                // Main landing page
-├── login.html                // Login page
-├── register.html             // Registration page
-├── services.html             // Page to display available services (user/staff)
-├── apply-service.html        // Form for service application (user)
-├── my-applications.html      // Page to view user's application status (user)
-├── admin-dashboard.html      // Admin/Officer dashboard
-├── manage-services.html      // Admin/Officer: Create/Update/Delete services
-├── manage-applications.html  // Admin/Officer/Staff: View/Update application status
+├── README.md                           // Project overview, setup, usage 
+├── index.html                          // Main landing page
+├── login.html                          // Login page
+├── register.html                       // Registration page
+├── services.html                       // Page to display available services (user/staff)
+├── apply-service.html                  // Form for service application (user)
+├── my-applications.html                // Page to view user's application status (user)
+├── admin-dashboard.html                // Admin/Officer dashboard
+├── manage-services.html                // Admin/Officer: Create/Update/Delete services
+├── manage-applications.html            // Admin/Officer/Staff: View/Update application status
 ├── css/
-│   └── style.css             // Main stylesheet
+│   └── style.css                       // Main stylesheet
 ├── js/
-│   └── script.js             // Main JavaScript file (Firebase interactions, module logic)
-│   └── auth.js               // (Optional) Separate file for authentication logic
-│   └── services.js           // (Optional) Separate file for service-related logic
+│   └── script.js                       // Main JavaScript file (Firebase interactions, module logic)
+│   └── auth.js                         // (Optional) Separate file for authentication logic
+│   └── services.js                     // (Optional) Separate file for service-related logic
 ├── images/
-│   └── logo.png              // Project logo and other images
-├── .gitignore                // Files/folders to ignore in Git
-└── LICENSE                   // (Optional) Project license
+│   └── logo.png                        // Project logo and other images
+├── .gitignore                          // Files/folders to ignore in Git
+└── LICENSE                             // (Optional) Project license
 
 ## Problem Statement
 
