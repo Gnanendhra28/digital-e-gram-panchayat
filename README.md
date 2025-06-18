@@ -87,13 +87,14 @@ This project aims to improve the delivery of citizen services in villages by com
     * Follow the setup steps and **copy your Firebase configuration object**. This will look something like:
         ```javascript
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+         apiKey: "AIzaSyASuwzHzN7tF2CRWhikxclhHvyMr2pqCV4",
+         authDomain: "digital-e-gram-panchayat-6fd24.firebaseapp.com",
+         projectId: "digital-e-gram-panchayat-6fd24",
+         storageBucket: "digital-e-gram-panchayat-6fd24.firebasestorage.app",
+         messagingSenderId: "629896439749",
+         appId: "1:629896439749:web:6377d8bf4de3eaf5794dac",
+         measurementId: "G-XV8HB6P402"
+          };
         ```
 3.  **Update `js/script.js`**:
     * Open `js/script.js` in your project.
