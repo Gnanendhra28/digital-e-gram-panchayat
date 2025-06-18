@@ -108,7 +108,7 @@ This project aims to improve the delivery of citizen services in villages by com
 
 1.  **Clone the Repository (if not already done)**:
     ```bash
-    git clone [https://github.com/YOUR_USERNAME/digital-e-gram-panchayat.git](https://github.com/YOUR_USERNAME/digital-e-gram-panchayat.git)
+    git clone [https://github.com/YOUR_USERNAME/digital-e-gram-panchayat.git](https://github.com/YOUR_USERNAME/digital-e-gram-panchayat.git)](https://github.com/Gnanendhra28/digital-e-gram-panchayat)
     cd digital-e-gram-panchayat
     ```
 2.  **Install Firebase SDK**:
